@@ -25,7 +25,7 @@ jobs:
 
       - name: Clone destination repository
         env:
-          TOKEN: ${{ secrets.SECOND_REPO_TOKEN }}
+          TOKEN: ${{ secrets.SECOND_ACCOUNT_SECRET }}
         run: |
           git clone \
             "https://x-access-token:${TOKEN}@github.com/sardinsavio-learnig/wanderlusr.git" \
