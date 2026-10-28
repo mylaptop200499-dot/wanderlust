@@ -1,0 +1,54 @@
+
+name: Sync to Vercel Staging Repository
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone destination repository
+        env:
+          TOKEN: ${{ secrets.SECOND_REPO_TOKEN }}
+        run: |
+          git clone \
+            "https://x-access-token:${TOKEN}@github.com/sardinsavio-learnig/wanderlusr.git" \
+            destination
+
+      - name: Synchronize source code
+        run: |
+          rsync -av --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='node_modules/' \
+            --exclude='.env' \
+            --exclude='destination/' \
+            ./ destination/
+
+      - name: Commit and push changes
+        working-directory: destination
+        run: |
+          git add -A
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Automated sync from wanderlust"
+            git push origin HEAD:main
+          else
+            echo "No changes to synchronize."
+          fi
